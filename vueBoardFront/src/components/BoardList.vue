@@ -17,11 +17,14 @@
       <tbody>
         <tr v-for="board in boards" :key="board.boardId">
           <td>{{ board.boardId }}</td>
+
+          <!-- 제목 클릭 시: 로그인 사용자 == 작성자일 때만 이동 -->
           <td>
-            <span class="link-title" @click="goToDetail(board.boardId)">
+            <span class="link-title" @click="tryGoToDetail(board)">
               {{ board.title }}
             </span>
           </td>
+
           <td>{{ board.writerId }}</td>
           <td>{{ formatDate(board.regdate) }}</td>
           <td>{{ board.viewcnt }}</td>
@@ -41,45 +44,77 @@
       <input v-model="newBoard.category" placeholder="카테고리" />
       <button @click="createBoard">등록</button>
     </div>
+
+    <button @click="logout" class="logout-btn">로그아웃</button>
   </div>
-
-  <button @click="logout">로그아웃</button>
-
 </template>
 
 <script setup>
 import axios from "axios";
 import { ref, onMounted } from "vue";
-import { useRouter } from 'vue-router'; //Composition API에서 라우터 인스턴스를 가져오는 함수
+import { useRouter } from "vue-router";
 
-// 초기 상수
-const boards = ref([]);
 const router = useRouter();
+
+// 반응형 상태
+const boards = ref([]);
+const user = ref(null); // 로그인 사용자 정보 저장
 const newBoard = ref({
   title: "",
   content: "",
-  writerId: "",  // 로그인한 사용자 id가 자동 세팅될 예정
+  writerId: "",
   category: "",
 });
 
-// 게시글 조회
+// 게시글 목록 조회
 const loadBoards = async () => {
   try {
-    const res = await axios.get('/api/board/list');
+    const res = await axios.get("/api/board/list");
     boards.value = res.data;
   } catch (error) {
     console.error("게시글 조회 실패:", error);
   }
 };
 
-//새 게시글 작성
+// 세션에서 로그인 사용자(memberId) 자동 로드
+const loadSessionUser = async () => {
+  try {
+    const res = await axios.get("/api/session", { withCredentials: true });
+    if (res.data.isLogin) {
+      user.value = res.data.user;
+      newBoard.value.writerId = user.value.memberId; // 작성자 자동 세팅
+      console.log("현재 로그인 사용자:", user.value);
+    } else {
+      alert("로그인이 필요합니다.");
+      router.push("/login");
+    }
+  } catch (err) {
+    console.error("세션 조회 실패:", err);
+  }
+};
+
+// 제목 클릭 시 상세페이지 이동(조건부)
+const tryGoToDetail = (board) => {
+  if (!user.value) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+  // 내가 작성한 게시물만 상세조회 및 수정 가능하게 설정
+  if (board.writerId === user.value.memberId) {
+    router.push(`/board/${board.boardId}`);
+  } else {
+    alert("본인 작성글만 상세 조회/수정할 수 있습니다.");
+  }
+};
+
+// 새 게시글 작성
 const createBoard = async () => {
   if (!newBoard.value.title || !newBoard.value.writerId) {
     alert("제목과 작성자는 필수 입력 항목입니다.");
     return;
   }
   try {
-    await axios.post('/api/board/create', newBoard.value, { withCredentials: true });
+    await axios.post("/api/board/create", newBoard.value, { withCredentials: true });
     alert("게시글이 등록되었습니다.");
     loadBoards();
   } catch (err) {
@@ -100,46 +135,21 @@ const deleteBoard = async (boardId) => {
   }
 };
 
-// 날짜 포매팅
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString();
-};
-
-// 세션에서 로그인 사용자(memberId) 자동 로드
-const loadSessionUser = async () => {
-  const res = await axios.get("/api/session", {
-    withCredentials: true,
-  });
-
-  if (res.data.isLogin) {
-    const user = res.data.user;
-    newBoard.value.writerId = user.memberId; // newBoard의 writerId에 세션값 자동 세팅
-    console.log("현재 로그인 사용자: ", user);
-  } else {
-    alert('로그인이 필요합니다');
-    window.location.href = "/login";
-  }
-
-};
-
-// 제목 클릭 시 라우터 이동
-const goToDetail = (boardId) => {
-  router.push(`/board/${boardId}`);
-}
-
 // 로그아웃
 const logout = async () => {
   try {
-
-    const res = await axios.post('/api/logout', {}, { withCredentials: true })
-    alert('로그아웃 되었습니다.')
-    router.push('/login') //로그인 화면으로 라우팅됨
+    await axios.post("/api/logout", {}, { withCredentials: true });
+    alert("로그아웃 되었습니다.");
+    router.push("/login");
   } catch (err) {
-    console.error('로그아웃 실패:', err)
-    alert('로그아웃 중 오류가 발생했습니다.')
+    console.error("로그아웃 실패:", err);
   }
-}
+};
 
+// 날짜 포맷 함수
+const formatDate = (date) => new Date(date).toLocaleDateString();
+
+// 초기 실행
 onMounted(() => {
   loadBoards();
   loadSessionUser();
@@ -159,6 +169,15 @@ onMounted(() => {
   text-align: center;
 }
 
+.link-title {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link-title:hover {
+  color: #0056b3;
+}
+
 .new-board {
   margin-top: 20px;
   display: flex;
@@ -166,7 +185,16 @@ onMounted(() => {
   gap: 6px;
 }
 
-button {
+.logout-btn {
+  margin-top: 20px;
+  background-color: #555;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
   cursor: pointer;
+}
+.logout-btn:hover {
+  background-color: #333;
 }
 </style>
