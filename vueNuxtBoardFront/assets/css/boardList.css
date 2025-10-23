@@ -119,3 +119,99 @@
   background-color: darkred;
 }
 
+/* 모달 관련 css */
+/* 🔹 모달 전체 배경 (overlay) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 🔹 모달 내부 컨테이너 */
+.modal-content {
+  background-color: #fff;
+  width: 400px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 🔹 제목 */
+.modal-content h3 {
+  text-align: center;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* 🔹 입력폼 스타일 */
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: none;
+}
+
+.modal-content textarea {
+  height: 100px;
+}
+
+/* 🔹 버튼 영역 */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* 🔹 등록 버튼 */
+.submit-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}
+
+/* 🔹 취소 버튼 */
+.cancel-btn {
+  background-color: #aaa;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background-color: #777;
+}
+
+/* 🔹 애니메이션 효과 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

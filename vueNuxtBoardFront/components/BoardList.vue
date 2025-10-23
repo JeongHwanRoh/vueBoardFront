@@ -16,21 +16,31 @@
         </ul>
       </div>
       <p v-else class="no-results">검색 결과가 없습니다.</p>
-      <!-- 새 게시글 작성 -->
-      <div class="new-board">
-        <h3>✏️ 새 게시글 작성</h3>
-        <input v-model="newBoard.title" placeholder="제목" />
-        <textarea v-model="newBoard.content" placeholder="내용"></textarea>
-        <input v-model="newBoard.writerId" placeholder="작성자" readonly />
-        <input v-model="newBoard.category" placeholder="카테고리" />
-        <button @click="createBoard">등록</button>
-      </div>
+      <button @click="showModal=true" class="modal_btn">신규 게시물 작성</button>
       <button @click="logout" class="logout-btn">로그아웃</button>
+      
+      <!-- 새 게시글 작성 모달 -->
+      <div class="new-board-modal">
+        <div v-if="showModal" class="modal-overlay" @click.self="showModal=false">   
+          <div class="modal-content">
+            <h3>✏️ 새 게시글 작성</h3>
+            <input v-model="newBoard.title" placeholder="제목" />
+            <textarea v-model="newBoard.content" placeholder="내용"></textarea>
+            <input v-model="newBoard.writerId" placeholder="작성자" readonly />
+            <input v-model="newBoard.category" placeholder="카테고리" />
+            <div class="modal-buttons">
+              <button class="submit-btn" @click="createBoard">등록</button>
+              <button class="cancel-btn" @click="showModal=flase">취소</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </aside>
 
     <!-- 메인 게시판 영역 -->
     <main class="board-list">
-
       <table class="board-table">
         <thead>
           <tr>
@@ -64,9 +74,6 @@
           </tr>
         </tbody>
       </table>
-
-
-
     </main>
   </div>
 </template>
@@ -90,6 +97,7 @@ const newBoard = ref({
   writerId: "",
   category: "",
 });
+const showModal=ref(false) // 모달 열고닫기용 상태값
 
 //  제목 검색 필터링
 const filteredBoards = computed(() => {
