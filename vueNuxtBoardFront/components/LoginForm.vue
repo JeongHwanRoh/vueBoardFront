@@ -14,6 +14,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
+// 반응형 상태변수
 const router = useRouter()
 const userId = ref('')
 const password = ref('')
