@@ -120,7 +120,7 @@
 }
 
 /* 모달 관련 css */
-/* 🔹 모달 전체 배경 (overlay) */
+/*  모달 전체 배경 (overlay) */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -134,7 +134,7 @@
   z-index: 1000;
 }
 
-/* 🔹 모달 내부 컨테이너 */
+/*  모달 내부 컨테이너 */
 .modal-content {
   background-color: #fff;
   width: 400px;
@@ -147,14 +147,14 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* 🔹 제목 */
+/*  제목 */
 .modal-content h3 {
   text-align: center;
   margin-bottom: 12px;
   color: #333;
 }
 
-/* 🔹 입력폼 스타일 */
+/*  입력폼 스타일 */
 .modal-content input,
 .modal-content textarea {
   width: 100%;
@@ -169,14 +169,14 @@
   height: 100px;
 }
 
-/* 🔹 버튼 영역 */
+/*  버튼 영역 */
 .modal-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
 }
 
-/* 🔹 등록 버튼 */
+/*  등록 버튼 */
 .submit-btn {
   background-color: #007bff;
   color: #fff;
@@ -190,7 +190,7 @@
   background-color: #0056b3;
 }
 
-/* 🔹 취소 버튼 */
+/*  취소 버튼 */
 .cancel-btn {
   background-color: #aaa;
   color: #fff;
@@ -204,7 +204,7 @@
   background-color: #777;
 }
 
-/* 🔹 애니메이션 효과 */
+/*  애니메이션 효과 */
 @keyframes fadeIn {
   from {
     opacity: 0;
