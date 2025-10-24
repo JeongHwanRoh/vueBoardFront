@@ -252,7 +252,6 @@ onMounted(() => {
 /* ================================
    🔹 BoardList + ChatModal 통합 CSS
    ================================ */
-
 /*  전체 컨테이너 */
 .board-container {
   display: flex;
@@ -490,106 +489,10 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
+
+
 /* ==========================================
    🔹 ChatModal (BoardList.vue로 통합)
    ========================================== */
-.chat-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.45); /* ✅ 살짝 투명 조정 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 5000;
-}
 
-.chat-content {
-  width: 400px;
-  height: 550px; /* ✅ 안정된 고정 높이 */
-  max-height: 90vh;
-  background: white;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-}
-
-.chat-header {
-  background-color: #007bff;
-  color: white;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-}
-
-.chat-messages {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  background: #f5f5f5;
-  padding: 10px 12px 6px 12px; /* ✅ 입력창과 시각적 일체감 */
-  scroll-behavior: smooth;
-}
-
-.chat-msg {
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-
-.chat-msg strong {
-  color: #007bff;
-}
-
-.chat-msg small {
-  color: gray;
-  font-size: 11px;
-  margin-left: 5px;
-}
-
-.chat-input-area {
-  display: flex;
-  flex-direction: column; /* ✅ 세로 정렬 */
-  gap: 8px;               /* ✅ 입력창과 버튼 사이 여백 */
-  border-top: 1px solid #ccc;
-  background: white;
-  padding: 10px;
-  flex-shrink: 0;
-}
-
-.chat-input-area input {
-  width: 100%;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  outline: none;
-}
-
-.chat-input-area input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
-}
-
-.chat-input-area button {
-  background: #007bff;
-  color: white;
-  border: none;
-  height: 36px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.chat-input-area button:hover {
-  background: #0056b3;
-}
 </style>
