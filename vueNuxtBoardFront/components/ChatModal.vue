@@ -1,35 +1,39 @@
 <template>
-    <div v-if="isOpen" class="chat-modal">
-        <div class="chat-content">
-            <!-- 상단 헤더 -->
-            <div class="chat-header">
-                <h3>💬 실시간 채팅</h3>
-                <span class="close" @click="$emit('close')">&times;</span>
-            </div>
+  <div v-if="isOpen" class="chat-modal">
+    <div class="chat-content">
+      <!-- 상단 헤더 -->
+      <div class="chat-header">
+        <h3>💬 실시간 채팅</h3>
+        <span class="close" @click="$emit('close')">&times;</span>
+      </div>
 
-            <!-- 채팅 메시지 영역 -->
-            <div class="chat-messages" ref="chatMessages">
-                <div v-for="(msg, idx) in messages" :key="idx" class="chat-msg">
-                    <strong>{{ msg.name }}:</strong>
-                    <span>{{ msg.message }}</span>
-                    <small>{{ formatTime(msg.time) }}</small>
-                </div>
-            </div>
-
-            <!-- 하단 입력 영역 -->
-            <div class="chat-input-area">
-                <div>
-                    <input v-model="newMessage" type="text" placeholder="메시지를 입력하세요..." @keyup.enter="sendMessage" />
-                </div>
-                <button @click="sendMessage">전송</button>
-            </div>
+      <!-- 채팅 메시지 영역 -->
+      <div class="chat-messages" ref="chatMessages">
+        <div v-for="(msg, idx) in messages" :key="idx" class="chat-msg">
+          <strong>{{ msg.name }}:</strong>
+          <span>{{ msg.message }}</span>
+          <small>{{ formatTime(msg.time) }}</small>
         </div>
+      </div>
+
+      <!-- 하단 입력 영역 -->
+      <div class="chat-input-area">
+        <div>
+          <input v-model="newMessage" type="text" placeholder="메시지를 입력하세요..." @keyup.enter="sendMessage" />
+        </div>
+        <button @click="sendMessage">전송</button>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, nextTick, watch } from "vue";
 import axios from "axios";
+/* SockJS + Stomp */
+import SockJS from "sockjs-client";
+import stomp from "stompjs";
+
 
 const props = defineProps({
   isOpen: { type: Boolean, required: true },
@@ -40,6 +44,7 @@ const newMessage = ref("");
 const messages = ref([]);
 const user = ref(null);
 const userId = ref("익명");
+const stompClient = ref(null)
 
 // ✅ 세션 불러오기
 const loadSessionUser = async () => {
@@ -57,15 +62,16 @@ const loadSessionUser = async () => {
 // ✅ 메시지 전송
 const sendMessage = () => {
   if (!newMessage.value.trim()) return;
-
-  messages.value.push({
-    name: userId.value || "익명",
+  const chat = {
+    name: userId.value,
     message: newMessage.value,
-    time: new Date(),
-  });
+
+  }
+  stompClient.value.send("/app/send", {}, JSON.stringify(chat))
 
   newMessage.value = "";
 };
+
 
 // ✅ 메시지가 추가될 때마다 자동 스크롤
 watch(messages, async () => {
@@ -88,10 +94,37 @@ const formatTime = (time) =>
     hour: "2-digit",
     minute: "2-digit",
   });
+
+// 웹소켓(stomp) 연결 로직
+
+// 마운트 시 WebSocket 연결
+onMounted(() => {
+  const socket = new SockJS("/ws-chat");
+  stompClient.value = Stomp.over(socket);
+
+  // connect가 완료된 이후에 subscribe 실행
+  stompClient.value.connect({}, () => {
+    console.log("STOMP 연결 성공");
+
+    stompClient.value.subscribe("/topic/messages", (msg) => {
+      const message = JSON.parse(msg.body);
+      messages.value.push(message);
+    });
+  });
+});
+
+// 연결 해제
+onBeforeUnmount(() => {
+  if (stompClient.value) {
+    stompClient.value.disconnect()
+    console.log("STOMP 연결 종료")
+  }
+})
+
+
 </script>
 
 <style>
-
 /* ==========================================
    🔹 ChatModal 컴포넌트용 CSS
    ========================================== */
@@ -101,7 +134,8 @@ const formatTime = (time) =>
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.45); /* ✅ 살짝 투명 조정 */
+  background: rgba(0, 0, 0, 0.45);
+  /* ✅ 살짝 투명 조정 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -110,7 +144,8 @@ const formatTime = (time) =>
 
 .chat-content {
   width: 400px;
-  height: 550px; /* ✅ 안정된 고정 높이 */
+  height: 550px;
+  /* ✅ 안정된 고정 높이 */
   max-height: 90vh;
   background: white;
   border-radius: 10px;
@@ -136,7 +171,8 @@ const formatTime = (time) =>
   min-height: 0;
   overflow-y: auto;
   background: #f5f5f5;
-  padding: 10px 12px 6px 12px; /* ✅ 입력창과 시각적 일체감 */
+  padding: 10px 12px 6px 12px;
+  /* ✅ 입력창과 시각적 일체감 */
   scroll-behavior: smooth;
 }
 
@@ -157,8 +193,10 @@ const formatTime = (time) =>
 
 .chat-input-area {
   display: flex;
-  flex-direction: column; /* ✅ 세로 정렬 */
-  gap: 8px;               /* ✅ 입력창과 버튼 사이 여백 */
+  flex-direction: column;
+  /* ✅ 세로 정렬 */
+  gap: 8px;
+  /* ✅ 입력창과 버튼 사이 여백 */
   border-top: 1px solid #ccc;
   background: white;
   padding: 10px;
