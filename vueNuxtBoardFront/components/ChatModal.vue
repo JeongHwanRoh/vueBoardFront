@@ -12,7 +12,7 @@
         <div v-for="(msg, idx) in messages" :key="idx" class="chat-msg">
           <strong>{{ msg.name }}:</strong>
           <span>{{ msg.message }}</span>
-          <small>{{ formatTime(msg.time) }}</small>
+          <small>{{ formatTime(msg.sendtime) }}</small>
         </div>
       </div>
 
@@ -46,24 +46,30 @@ const user = ref(null);
 const userId = ref("익명");
 const stompClient = ref(null)
 
-// ✅ 세션 불러오기
+//  세션 불러오기
 const loadSessionUser = async () => {
   try {
     const res = await axios.get("/api/session", { withCredentials: true });
     if (res.data.isLogin) {
       user.value = res.data.user;
-      userId.value = user.value.memberId;
+      user.name=user.value.name;
+      userId.value = user.value.memberId; // ✅ 세션에서 로그인 ID 저장
+      console.log("현재 로그인 사용자:", userId.value);
+    } else {
+      alert("로그인이 필요합니다."); // ✅ 동일하게 처리
+      router.push("/login");
     }
   } catch (err) {
     console.error("세션 조회 실패:", err);
   }
 };
 
-// ✅ 메시지 전송
+//  메시지 전송
 const sendMessage = () => {
   if (!newMessage.value.trim()) return;
   const chat = {
-    name: userId.value,
+    memberId: user?.value?.memberId || "guest",
+    name: user.name,
     message: newMessage.value,
 
   }
@@ -73,14 +79,14 @@ const sendMessage = () => {
 };
 
 
-// ✅ 메시지가 추가될 때마다 자동 스크롤
+//  메시지가 추가될 때마다 자동 스크롤
 watch(messages, async () => {
   await nextTick();
   const box = document.querySelector(".chat-messages");
   if (box) box.scrollTop = box.scrollHeight;
 });
 
-// ✅ 모달 열릴 때 세션 불러오기
+//  모달 열릴 때 세션 불러오기
 watch(
   () => props.isOpen,
   (val) => {
@@ -88,17 +94,39 @@ watch(
   }
 );
 
-// ✅ 시간 포맷
-const formatTime = (time) =>
-  new Date(time).toLocaleTimeString("ko-KR", {
+//  시간 포맷
+const formatTime = (time) => {
+  debugger;
+  if (!time) return "-";
+  
+  // ✅ 공백 제거 및 소수점 이하 잘라내기
+  const cleanTime = time.trim().split('.')[0]; 
+
+  // ✅ ISO 8601 형식으로 보장 (T 미포함 방지)
+  const formattedTime = cleanTime.includes("T")
+    ? cleanTime
+    : cleanTime.replace(" ", "T");
+
+  const date = new Date(formattedTime);
+
+  // ✅ JS에서 정상 변환 안되면 그냥 그대로 출력
+  if (isNaN(date.getTime())) {
+    console.warn("⚠️ Invalid date detected:", time);
+    return "-";
+  }
+
+  return date.toLocaleTimeString("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
 
 // 웹소켓(stomp) 연결 로직
 
 // 마운트 시 WebSocket 연결
-onMounted(() => {
+onMounted(async () => {
+  await loadSessionUser();
   const socket = new SockJS("/ws-chat");
   stompClient.value = Stomp.over(socket);
 
@@ -135,7 +163,7 @@ onBeforeUnmount(() => {
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.45);
-  /* ✅ 살짝 투명 조정 */
+  /*  살짝 투명 조정 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -145,7 +173,7 @@ onBeforeUnmount(() => {
 .chat-content {
   width: 400px;
   height: 550px;
-  /* ✅ 안정된 고정 높이 */
+  /*  안정된 고정 높이 */
   max-height: 90vh;
   background: white;
   border-radius: 10px;
@@ -172,7 +200,7 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   background: #f5f5f5;
   padding: 10px 12px 6px 12px;
-  /* ✅ 입력창과 시각적 일체감 */
+  /*  입력창과 시각적 일체감 */
   scroll-behavior: smooth;
 }
 
@@ -194,9 +222,9 @@ onBeforeUnmount(() => {
 .chat-input-area {
   display: flex;
   flex-direction: column;
-  /* ✅ 세로 정렬 */
+  /*  세로 정렬 */
   gap: 8px;
-  /* ✅ 입력창과 버튼 사이 여백 */
+  /*  입력창과 버튼 사이 여백 */
   border-top: 1px solid #ccc;
   background: white;
   padding: 10px;

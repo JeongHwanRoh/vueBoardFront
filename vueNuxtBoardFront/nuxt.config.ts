@@ -22,6 +22,7 @@ export default defineNuxtConfig({
           changeOrigin: true,
           secure: false, // HTTP 환경에서 SSL 검사 비활성화
           ws: true, // websocket proxy 활성화
+          rewrite: (path) => path,
         }
       },
     },
