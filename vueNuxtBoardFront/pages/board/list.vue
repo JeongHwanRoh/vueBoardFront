@@ -125,7 +125,7 @@ const logout = async () => {
   try {
     await axios.post("/api/logout", {}, { withCredentials: true });
     alert("로그아웃 되었습니다.");
-    navigateTo("/login");
+    navigateTo("/");
   } catch (err) {
     console.error("로그아웃 실패:", err);
   }
