@@ -1,4 +1,17 @@
-<!-- pages/index.vue -->
+<template>
+    <div class="login-view">
+        <h1>로그인 페이지</h1>
+        <LoginForm /> <!-- LoginForm 컴포넌트 가져오기 -->
+    </div>
+</template>
+
 <script setup>
-navigateTo('/login') /* login.vue로 자동 라우팅 */
+import '@/assets/css/login.css' // login.css import
+import LoginForm from '@/components/login/LoginForm.vue'  // LoginForm 컴포넌트 가져오기
+definePageMeta({
+    ssr: false
+})
+
 </script>
+
+<style scoped></style>

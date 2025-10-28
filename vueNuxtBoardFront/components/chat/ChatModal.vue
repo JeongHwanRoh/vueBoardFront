@@ -28,9 +28,10 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch } from "vue";
+import { ref, nextTick, watch, defineProps, defineEmits} from "vue";
 import axios from "axios";
-/* SockJS + Stomp */
+/* SockJS + Stomp  
+=> SocketJs 라이브러리 + Stomp 프로토콜 조합*/
 import SockJS from "sockjs-client";
 import stomp from "stompjs";
 
@@ -53,10 +54,10 @@ const loadSessionUser = async () => {
     if (res.data.isLogin) {
       user.value = res.data.user;
       user.name=user.value.name;
-      userId.value = user.value.memberId; // ✅ 세션에서 로그인 ID 저장
+      userId.value = user.value.memberId; //  세션에서 로그인 ID 저장
       console.log("현재 로그인 사용자:", userId.value);
     } else {
-      alert("로그인이 필요합니다."); // ✅ 동일하게 처리
+      alert("로그인이 필요합니다."); //  동일하게 처리
       router.push("/login");
     }
   } catch (err) {
@@ -99,17 +100,17 @@ const formatTime = (time) => {
   debugger;
   if (!time) return "-";
   
-  // ✅ 공백 제거 및 소수점 이하 잘라내기
+  //  공백 제거 및 소수점 이하 잘라내기
   const cleanTime = time.trim().split('.')[0]; 
 
-  // ✅ ISO 8601 형식으로 보장 (T 미포함 방지)
+  //  ISO 8601 형식으로 보장 (T 미포함 방지)
   const formattedTime = cleanTime.includes("T")
     ? cleanTime
     : cleanTime.replace(" ", "T");
 
   const date = new Date(formattedTime);
 
-  // ✅ JS에서 정상 변환 안되면 그냥 그대로 출력
+  //  JS에서 정상 변환 안되면 그냥 그대로 출력
   if (isNaN(date.getTime())) {
     console.warn("⚠️ Invalid date detected:", time);
     return "-";

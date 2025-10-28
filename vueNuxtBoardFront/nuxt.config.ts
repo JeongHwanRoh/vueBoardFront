@@ -12,13 +12,13 @@ export default defineNuxtConfig({
       cors: false, // nuxt dev 서버가 CORS 헤더 추가하지 않도록 설정
       proxy: {
         '/api': {
-          target: 'http://localhost:8092',  // 백엔드 주소
+          target: 'http://localhost:8092',  // 백엔드 주소(base url)
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
         '/ws-chat':{
   
-          target: 'http://localhost:8092',
+          target: 'http://localhost:8092', // base url
           changeOrigin: true,
           secure: false, // HTTP 환경에서 SSL 검사 비활성화
           ws: true, // websocket proxy 활성화

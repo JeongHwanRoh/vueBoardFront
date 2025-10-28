@@ -1,12 +1,14 @@
 <!-- 실제 로그인 동작 및 입력 UI 담당 컴포넌트 -->
 <template>
-  <div class="login-container">
-    <input v-model="userId" placeholder="아이디를 입력하세요" />
-    <input v-model="password" type="password" placeholder="비밀번호를 입력하세요" />
-    <button @click="login">로그인</button>
 
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-  </div>
+
+    <div class="login-container">
+      <input v-model="userId" placeholder="아이디를 입력하세요" />
+      <input v-model="password" type="password" placeholder="비밀번호를 입력하세요" />
+      <button @click="login">로그인</button>
+  
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    </div>
 </template>
 
 <script setup>
