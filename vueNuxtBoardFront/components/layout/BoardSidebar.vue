@@ -3,26 +3,14 @@
     <h3>🔍 게시글 검색</h3>
 
     <!-- 검색창 (BoardSearch 컴포넌트로 분리해도 OK) -->
-    <input
-      v-model="searchKeyword"
-      type="text"
-      placeholder="제목 검색..."
-      class="search-input"
-    />
+    <BoardSearch v-model:searchKeyword="searchKeyword" :filteredBoards="filteredBoards"
+      @select="$emit('select', $event)" />
 
-    <div v-if="filteredBoards.length" class="search-results">
-      <ul>
-        <li v-for="board in filteredBoards" :key="board.boardId">
-          <span class="result-title" @click="$emit('select', board.boardId)">
-            {{ board.title }}
-          </span>
-          <small> - {{ board.writerId }}</small>
-        </li>
-      </ul>
-    </div>
-    <p v-else class="no-results">검색 결과가 없습니다.</p>
-
-    <button class="modal_btn" @click="$emit('openModal')">신규 게시물 작성</button>
+    <!-- 신규 게시물 작성 모달 -->
+     <!-- user 세션값이 들어올 경우에만 모달 열리게 처리 -->
+    <BoardModal v-if="showModal && user" :user="user" @create="handleCreate" @close="showModal = false" />
+    <ChatModal v-if=" isChatOpen && user" :user="user" :isOpen="isChatOpen" @close="closeChat"/>
+    <button class="modal_btn" @click="showModal = true">신규 게시물 작성</button>
     <button class="chat_btn" @click="$emit('openChat')">채팅하기</button>
     <button class="logout-btn" @click="$emit('logout')">로그아웃</button>
   </aside>
@@ -30,20 +18,44 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import BoardSearch from "@/components/board/BoardSearch.vue"; // 게시글 검색 컴포넌트
+import BoardModal from "@/components/board/BoardModal.vue"; // 새 게시글 작성 모달 컴포넌트
+import ChatModal from '@/components/chat/ChatModal.vue'; // 채팅 모달 컴포넌트
 
+// BoardSidebar 컴포넌트에서 props로 상위 페이지에서 boards 객체를 가져옴
 const props = defineProps({
   boards: { type: Array, default: () => [] },
+  user: { type: Object, default: null },
 });
+const emit = defineEmits(["select", "openModal", "openChat", "logout"]); // 상위 페이지(list.vue)로 select, openModal, openChat, logout 이벤트를 전달
+const searchKeyword = ref(""); // 검색어
+const showModal = ref(false);   // 신규 게시물 작성 모달 상태 
+const  isChatOpen=ref(false); //채팅창 오픈 여부
 
-const emit = defineEmits(["select", "openModal", "openChat", "logout"]);
-
-const searchKeyword = ref("");
-
+// 대소문자 구분 없이 검색되게 처리
 const filteredBoards = computed(() => {
   if (!searchKeyword.value.trim()) return [];
   const lower = searchKeyword.value.toLowerCase();
-  return props.boards.filter((b) => b.title.toLowerCase().includes(lower));
+  return props.boards.filter((b) => b.title.includes(lower));
 });
+
+// 모달 내부에서 게시글 작성 완료 시 처리
+const handleCreate = (newBoardData) => {
+  emit("createBoard", newBoardData); //부모로 데이터 전달
+  showModal.value = false; // 모달 닫기
+
+}
+
+// 채팅 모달 열고닫기
+const openChat=()=>{
+  isChatOpen.value=true;
+}
+
+const closeChat=()=>{
+  isChatOpen.value=false;
+
+}
+
 </script>
 
 <style scoped>

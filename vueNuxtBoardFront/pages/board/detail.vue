@@ -2,6 +2,7 @@
   <div class="board-detail-container" v-if="board">
     <h2 align="center">게시글 상세보기</h2>
 
+    <!-- editMode일 경우 제목-> input모드로, 내용->textarea 모드로 -->
     <div class="board-info">
       <p><strong>번호:</strong> {{ board.boardId }}</p>
       <p><strong>제목:</strong>
@@ -12,7 +13,7 @@
       <p><strong>등록일:</strong> {{ formatDate(board.regdate) }}</p>
     </div>
 
-    <!-- content -->
+    <!-- 내용 -->
     <div class="board-content">
       <h3>내용</h3>
       <div v-if="!editMode">{{ board.content }}</div>
@@ -28,6 +29,7 @@
         <button v-if="!editMode" class="delete" @click="deleteBoard">삭제</button>
       </template>
 
+      <!-- editMode일 경우 버튼구성: 완료, 취소-->      
       <template v-if="editMode">
         <button class="save" @click="updateBoard">✔ 완료</button>
         <button @click="cancelEdit">취소</button>
@@ -95,14 +97,14 @@ const enableEdit = () => {
     return
   }
 
-  editMode.value = true
-  editBoard.value = { ...board.value }
+  editMode.value = true // 수정 버튼 클릭 시 editMode 활성화
+  editBoard.value = { ...board.value } // 수정 사항의 기본값은 board.value에서 가져옴
 }
 
 // 수정 취소
 const cancelEdit = () => {
-  editMode.value = false
-  editBoard.value = {}
+  editMode.value = false // editMode 비활성화
+  editBoard.value = {} // 수정 사항 지워짐
 }
 
 // 수정 완료 (UPDATE)
@@ -112,15 +114,15 @@ const updateBoard = async () => {
       withCredentials: true,
     })
     alert("게시글이 수정되었습니다.")
-    editMode.value = false
-    getBoardDetail()
+    editMode.value = false // editMode 비활성화
+    getBoardDetail() // 수정된 게시물 상세보기 조회
   } catch (err) {
     console.error("게시글 수정 실패:", err)
     alert("수정 중 오류가 발생했습니다.")
   }
 }
 
-// 삭제
+// 삭제 (DELETE)
 const deleteBoard = async () => {
   if (!user.value || board.value.writerId !== user.value.memberId) {
     alert("본인 작성글만 삭제할 수 있습니다.")
@@ -140,17 +142,21 @@ const deleteBoard = async () => {
 // 목록으로 돌아가기
 const goBack = () => router.push('/board/list')
 
-// 날짜 포맷
+// 날짜 포맷 => 날짜 객체를 문자열로 변환(EX.25/10/23 14:14:57.000000000 -> 2025.10.23 오후 2:14:57)
 const formatDate = (date) => new Date(date).toLocaleString()
 
-// 초기 로드
+// 초기 로드: 세션 불러온 후 상세 게시글 조회
 onMounted(() => {
   loadSessionUser()
   if (boardId.value) getBoardDetail(boardId.value)
   else alert('잘못된 접근입니다.')
 })
 
-definePageMeta({ ssr: false })
+// 본 페이지에 대한 서버 측 렌더링을 끈다.
+// 쿼리와 세션 기반 비동기 데이터 로딩이 ssr 시점에 처리되게 하기 위해 브라우저에서만 렌더링되도록 설정
+definePageMeta({ ssr: false }) 
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

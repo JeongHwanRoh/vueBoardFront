@@ -1,19 +1,22 @@
 <template>
   <div class="board-layout">
-    <!-- 상단 헤더 -->
+    <!-- 상단 헤더 레이아웃 -->
     <BoardHeader :user="user" />
 
     <!--  좌측 사이드바 + 메인 -->
     <div class="board-body">
+      <!-- 좌측 사이드바 레이아웃 -->
       <BoardSidebar
-        :boards="boards"
+        :boards="boards" 
+        :user="user"
         @select="goToDetail"
+        @createBoard="createBoard"
         @openModal="showModal = true"
         @openChat="isChatOpen = true"
         @logout="logout"
       />
 
-      <!--  메인 게시판 -->
+      <!--  메인 게시판 레이아웃-->
       <BoardMain
         :boards="boards"
         :user="user"
@@ -35,9 +38,9 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { navigateTo } from "#app";
 
-import BoardHeader from "@/components/layout/BoardHeader.vue";
-import BoardSidebar from "@/components/layout/BoardSidebar.vue";
-import BoardMain from "@/components/layout/BoardMain.vue";
+import BoardHeader from "@/components/layout/BoardHeader.vue"; // 헤더 레이아웃 컴포넌트 
+import BoardSidebar from "@/components/layout/BoardSidebar.vue"; // 사이드바 레이아웃 컴포넌트
+import BoardMain from "@/components/layout/BoardMain.vue"; // 메인 게시판 레이아웃 컴포넌트
 
 //  상태 변수
 const user = ref(null);
@@ -69,7 +72,7 @@ const loadSessionUser = async () => {
     if (res.data.isLogin) {
       user.value = res.data.user;
     } else {
-      navigateTo("/login");
+      navigateTo("/");
     }
   } catch (err) {
     console.error("세션 조회 실패:", err);

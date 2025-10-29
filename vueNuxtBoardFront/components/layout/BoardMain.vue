@@ -4,11 +4,12 @@
             <h2>📋 게시판 목록</h2>
         </div>
 
-        <BoardTable :boards="boards" @detail="$emit('detail', $event)" @delete="$emit('delete', $event)" />
+        <!-- BoardMain이 detail 이벤트를 상위페이지(list.vue)로 다시 emit -->
+        <BoardTable :boards="boards"
+        @detail="$emit('detail', $event)" 
+        @delete="$emit('delete', $event)"
+        />
         <Pagination :currentPage="currentPage" :totalPages="totalPages" @change="$emit('changePage', $event)" />
-
-        <BoardModal v-if="showModal" :user="user" @create="$emit('create', $event)"
-            @close="$emit('closeModal', false)" />
 
 
     </main>
@@ -17,7 +18,7 @@
 <script setup>
 import BoardTable from "@/components/board/BoardTable.vue"; // 테이블 조회
 import Pagination from "@/components/board/Pagination.vue"; // 페이징(10개씩)
-import BoardModal from "@/components/board/BoardModal.vue"; // 새 게시글 작성
+
 
 defineProps({
     boards: Array,
@@ -26,6 +27,7 @@ defineProps({
     totalPages: Number,
     showModal: Boolean,
 });
+
 defineEmits(["create", "delete", "changePage", "closeModal", "detail"]);
 </script>
 

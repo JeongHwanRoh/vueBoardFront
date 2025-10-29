@@ -20,7 +20,7 @@
 import { ref, watch, defineProps, defineEmits} from "vue";
 
 const props = defineProps({
-  user: { type: Object, required: true },
+  user: { type: Object, default: null },
 });
 
 const emit = defineEmits(["create", "close"]);

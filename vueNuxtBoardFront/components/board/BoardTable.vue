@@ -16,10 +16,13 @@
         <td>{{ board.boardId }}</td>
 
         <!-- 제목 클릭 시 상세 이동 이벤트 emit -->
+         <!-- 해당 제목에 맞는 board를 boardTable->BoardMain -> list.vue로 올림
+              list.vue에
+         -->
         <td>
           <span
             class="link-title"
-            @click="$emit('detail', board)"
+            @click="$emit('detail', board)" 
           >
             {{ board.title }}
           </span>
