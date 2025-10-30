@@ -9,9 +9,9 @@
     <!-- 신규 게시물 작성 모달 -->
      <!-- user 세션값이 들어올 경우에만 모달 열리게 처리 -->
     <BoardModal v-if="showModal && user" :user="user" @create="handleCreate" @close="showModal = false" />
-    <ChatModal v-if=" isChatOpen && user" :user="user" :isOpen="isChatOpen" @close="closeChat"/>
+    <ChatModal v-if="openChat && user" :user="user" :isOpen="isChatOpen" @close="closeChat"/>
     <button class="modal_btn" @click="showModal = true">신규 게시물 작성</button>
-    <button class="chat_btn" @click="$emit('openChat')">채팅하기</button>
+    <button class="chat_btn" @click="openChat">채팅하기</button>
     <button class="logout-btn" @click="$emit('logout')">로그아웃</button>
   </aside>
 </template>

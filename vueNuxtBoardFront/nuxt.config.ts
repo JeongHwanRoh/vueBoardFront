@@ -16,8 +16,8 @@ export default defineNuxtConfig({
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
-        '/ws-chat':{
-  
+        '/ws-chat': {
+
           target: 'http://localhost:8092', // base url
           changeOrigin: true,
           secure: false, // HTTP 환경에서 SSL 검사 비활성화
@@ -32,7 +32,7 @@ export default defineNuxtConfig({
         '~': fileURLToPath(new URL('./', import.meta.url)),
       },
     },
-  
+
   },
   routeRules: {
     '/ws-chat/**': { ssr: false, prerender: false },
