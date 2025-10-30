@@ -140,7 +140,7 @@ const deleteBoard = async () => {
 }
 
 // 목록으로 돌아가기
-const goBack = () => router.push('/board/list')
+const goBack = () => router.push('/board/main')
 
 // 날짜 포맷 => 날짜 객체를 문자열로 변환(EX.25/10/23 14:14:57.000000000 -> 2025.10.23 오후 2:14:57)
 const formatDate = (date) => new Date(date).toLocaleString()

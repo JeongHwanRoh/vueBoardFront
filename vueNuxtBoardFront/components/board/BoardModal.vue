@@ -19,10 +19,12 @@
 <script setup>
 import { ref, watch, defineProps, defineEmits} from "vue";
 
+// props: 상위에서 user 정보 가져오기
 const props = defineProps({
   user: { type: Object, default: null },
 });
 
+// emit: create, close 이벤트 부모로 전달
 const emit = defineEmits(["create", "close"]);
 
 const newBoard = ref({

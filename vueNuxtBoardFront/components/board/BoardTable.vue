@@ -57,8 +57,8 @@ const props = defineProps({
   },
 });
 
-//  emits: 클릭 이벤트 부모로 전달
-defineEmits(["detail", "delete"]);
+//  emit: detail, delete 이벤트 부모로 전달
+const emit=defineEmits(["detail", "delete"]);
 
 //  날짜 포맷 함수 (단순 변환)
 const formatDate = (date) => new Date(date).toLocaleDateString();

@@ -32,11 +32,13 @@ import { ref, nextTick, watch, onBeforeUnmount, defineProps, defineEmits } from 
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
+// 상위에서 isOpen(모달 오픈 여부), user(사용자객체) 데이터 가져오기
 const props = defineProps({
   isOpen: { type: Boolean, required: true },
   user: { type: Object, default: null },
 });
 
+// close 이벤트를 부모로 전달
 const emit = defineEmits(["close"]);
 
 const newMessage = ref("");
@@ -65,7 +67,7 @@ watch(messages, async () => {
   if (box) box.scrollTop = box.scrollHeight;
 });
 
-// 모달 열릴 때 연결
+// 모달 열릴 때 props 전달되면서 웹소켓 연결되게 설정
 watch(
   () => props.isOpen,
   (val) => {
@@ -77,6 +79,7 @@ watch(
 // STOMP 연결
 const connectWebSocket = () => {
 
+  //  STOMP 구독 중복 등록 방지용(이미 연결 시 재연결하지 않도록 설정)
   if (stompClient.value && stompClient.value.connected) {
     console.log("이미 STOMP 연결 중 - 재연결 생략");
     return;
