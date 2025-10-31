@@ -7,105 +7,85 @@
         <span class="close" @click="$emit('close')">&times;</span>
       </div>
 
-      <!-- 채팅 메시지 영역 -->
+      <!-- 채팅 메시지 -->
       <div class="chat-messages" ref="chatMessages">
         <div v-for="(msg, idx) in messages" :key="idx" class="chat-msg">
           <strong>{{ msg.name }}:</strong>
           <span>{{ msg.message }}</span>
-          <small>{{ new Date(msg.sendtime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-            }}</small>
+          <small>{{ formatTime(msg.sendtime) }}</small>
         </div>
       </div>
 
-      <!-- 하단 입력 영역 -->
-
+      <!-- 하단 입력 -->
       <div class="chat-input-area">
-        <input v-model="newMessage" type="text" placeholder="메시지를 입력하세요..." @keyup.enter="sendMessage" />
+        <input
+          v-model="newMessage"
+          type="text"
+          placeholder="메시지를 입력하세요..."
+          @keyup.enter="sendMessage"
+        />
       </div>
       <button @click="sendMessage">전송</button>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, nextTick, watch, onBeforeUnmount, defineProps, defineEmits } from "vue";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
+<script setup lang="ts">
+import { ref, watch, nextTick, onBeforeUnmount } from "vue";
+import ChatSocket from "@/lib/chatSocket";
+import type { ChatMessage } from "@/lib/chatSocket"; // 타입 전용 IMPORT
 
-// 상위에서 isOpen(모달 오픈 여부), user(사용자객체) 데이터 가져오기
 const props = defineProps({
   isOpen: { type: Boolean, required: true },
   user: { type: Object, default: null },
 });
-
-// close 이벤트를 부모로 전달
 const emit = defineEmits(["close"]);
 
+const socket = new ChatSocket();
+const messages = ref<ChatMessage[]>([]);
 const newMessage = ref("");
-const messages = ref([]);
-const stompClient = ref(null);
 
-// 메시지 전송
-const sendMessage = () => {
-  if (!newMessage.value.trim()) return;
+// 시간 포맷
+const formatTime = (time: string) =>
+  new Date(time).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
 
-  const chat = {
-    memberId: props.user?.memberId || "guest",
-    name: props.user?.name || "익명",
-    message: newMessage.value,
-    sendtime: new Date().toISOString(),
-  };
-
-  stompClient.value.send("/app/send", {}, JSON.stringify(chat));
-  newMessage.value = "";
-};
-
-// 메시지 스크롤
+// 메시지 자동 스크롤
 watch(messages, async () => {
   await nextTick();
   const box = document.querySelector(".chat-messages");
   if (box) box.scrollTop = box.scrollHeight;
 });
 
-// 모달 열릴 때 props 전달되면서 웹소켓 연결되게 설정
+// 메시지 전송
+const sendMessage = () => {
+  if (!newMessage.value.trim()) return;
+
+  const msg: ChatMessage = {
+    memberId: props.user?.memberId || "guest",
+    name: props.user?.name || "익명",
+    message: newMessage.value,
+    sendtime: new Date().toISOString(),
+  };
+  socket.sendMessage(msg);
+  newMessage.value = "";
+};
+
+// 모달이 열릴 때 WebSocket 연결
 watch(
   () => props.isOpen,
   (val) => {
-    if (val) connectWebSocket();
+    if (val) {
+      socket.connect((msg) => messages.value.push(msg));
+    }
   }
 );
 
-
-// STOMP 연결
-const connectWebSocket = () => {
-
-  //  STOMP 구독 중복 등록 방지용(이미 연결 시 재연결하지 않도록 설정)
-  if (stompClient.value && stompClient.value.connected) {
-    console.log("이미 STOMP 연결 중 - 재연결 생략");
-    return;
-  }
-  const socket = new SockJS("/ws-chat");
-  stompClient.value = Stomp.over(socket);
-
-  stompClient.value.connect({}, () => {
-    console.log("✅ STOMP 연결 성공");
-    stompClient.value.subscribe("/topic/messages", (msg) => {
-      const message = JSON.parse(msg.body);
-      messages.value.push(message);
-    });
-  });
-};
-
 // 연결 해제
-onBeforeUnmount(() => {
-  if (stompClient.value) {
-    stompClient.value.disconnect();
-    console.log("🧹 STOMP 연결 종료");
-  }
-});
+onBeforeUnmount(() => socket.disconnect());
 </script>
 
 <style scoped>
+/* 기존 스타일 그대로 유지 */
 .chat-modal {
   position: fixed;
   top: 0;

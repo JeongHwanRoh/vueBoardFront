@@ -43,7 +43,7 @@ const props = defineProps({
 const localKeyword=ref(props.searchKeyword || "")
 
 // BoardSidebar(상위 컴포넌트)로 update, select 이벤트 전달
-const emit = defineEmits(["update:serachKeyword", "select"])
+const emit = defineEmits(["update:searchKeyword", "select"])
 
 // props 값이 외부에서 바뀌면 입력창도 동기화
 watch(

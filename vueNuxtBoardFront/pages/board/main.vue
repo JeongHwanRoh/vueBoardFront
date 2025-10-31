@@ -9,11 +9,11 @@
       <BoardSidebar
         :boards="boards" 
         :user="user"
+        @createBoard="doCreateBoard "
         @select="goToDetail"
-        @createBoard="createBoard"
         @openModal="showModal = true"
         @openChat="isChatOpen = true"
-        @logout="logout"
+        @logout="doLogout"
       />
 
       <!--  메인 게시판 레이아웃-->
@@ -23,8 +23,8 @@
         :currentPage="currentPage"
         :totalPages="totalPages"
         :showModal="showModal"
-        @create="createBoard"
-        @delete="deleteBoard"
+        @create="doCreateBoard"
+        @delete="doDeleteBoard"
         @changePage="changePage"
         @closeModal="showModal = false"
         @detail="tryGoToDetail"
@@ -41,6 +41,8 @@ import { navigateTo } from "#app";
 import BoardHeader from "@/components/layout/BoardHeader.vue"; // 헤더 레이아웃 컴포넌트 
 import BoardSidebar from "@/components/layout/BoardSidebar.vue"; // 사이드바 레이아웃 컴포넌트
 import BoardMain from "@/components/layout/BoardMain.vue"; // 메인 게시판 레이아웃 컴포넌트
+import {logout, sessionUser} from "@/lib/userApi.ts"; // userApi.ts의 logout, sessionUser 함수 불러오기
+import {loadBoards, createBoard, deleteBoard} from "@/lib/boardApi.ts";
 
 //  상태 변수
 const user = ref(null);
@@ -53,13 +55,13 @@ const showModal = ref(false);
 const isChatOpen = ref(false);
 
 //  게시글 목록 조회
-const loadBoards = async () => {
+const doLoadBoards = async () => {
+  //debugger;
   try {
-    const res = await axios.get("/api/board/list", {
-      params: { page: currentPage.value, size: pageSize },
-    });
-    boards.value = res.data.boards;
-    totalCount.value = res.data.totalCount;
+    const res=await loadBoards(currentPage.value, pageSize.value); // 요청보내는 값: currentPage, pageSize
+    boards.value = res.boards; // 백엔드 리턴값 (해당 페이지 게시물 목록)
+    totalCount.value = res.totalCount; // 백엔드 리턴값 (총 페이지 수)
+    // console.log("boards: ",boards.value , "totalCount: ",totalCount.value);
   } catch (error) {
     console.error("게시글 조회 실패:", error);
   }
@@ -68,9 +70,9 @@ const loadBoards = async () => {
 //  세션 사용자 조회
 const loadSessionUser = async () => {
   try {
-    const res = await axios.get("/api/session", { withCredentials: true });
-    if (res.data.isLogin) {
-      user.value = res.data.user;
+    const res = await sessionUser();
+    if (res.isLogin) {
+      user.value = res.user;
     } else {
       navigateTo("/");
     }
@@ -88,29 +90,29 @@ const tryGoToDetail = (board) => {
   navigateTo({ path: "/board/detail", query: { id: board.boardId } });
 };
 
-const goToDetail = (boardId) => {
+ const goToDetail = (boardId) => {
   navigateTo({ path: "/board/detail", query: { id: boardId } });
-};
+}; 
 
 //  게시글 등록
-const createBoard = async (newBoard) => {
+const doCreateBoard = async (newBoardData) => {
   try {
-    await axios.post("/api/board/create", newBoard, { withCredentials: true });
+    await createBoard(newBoardData);
     alert("게시글이 등록되었습니다.");
     showModal.value = false;
-    loadBoards();
+    doLoadBoards();
   } catch (err) {
     console.error("게시글 등록 실패:", err);
   }
 };
 
 //  게시글 삭제
-const deleteBoard = async (boardId) => {
+const doDeleteBoard = async (boardId) => {
   if (!confirm("정말 삭제하시겠습니까?")) return;
   try {
-    await axios.delete(`/api/board/delete/${boardId}`);
+    await deleteBoard(boardId)
     alert("삭제 완료!");
-    loadBoards();
+    doLoadBoards();
   } catch (error) {
     console.error("게시글 삭제 실패:", error);
   }
@@ -120,15 +122,15 @@ const deleteBoard = async (boardId) => {
 const changePage = (page) => {
   if (page < 1 || page > totalPages.value) return;
   currentPage.value = page;
-  loadBoards();
+  doLoadBoards();
 };
 
 //  로그아웃
-const logout = async () => {
+const doLogout = async () => {
   try {
-    await axios.post("/api/logout", {}, { withCredentials: true });
-    alert("로그아웃 되었습니다.");
-    navigateTo("/");
+    const res=await logout();
+    alert("로그아웃 되었습니다.")
+    navigateTo("/"); 
   } catch (err) {
     console.error("로그아웃 실패:", err);
   }
@@ -137,7 +139,7 @@ const logout = async () => {
 //  초기 실행
 onMounted(() => {
   loadSessionUser();
-  loadBoards();
+  doLoadBoards();
 });
 
 definePageMeta({ ssr: false });

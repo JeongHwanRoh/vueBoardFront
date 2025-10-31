@@ -1,7 +1,6 @@
 <template>
     <main class="board-main">
         <div class="board-header">
-            <h2>📋 게시판 목록</h2>
         </div>
 
         <!-- BoardMain이 detail 이벤트를 상위페이지(list.vue)로 다시 emit -->

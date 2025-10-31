@@ -47,6 +47,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import '@/assets/css/boardDetail.css'
+import {sessionUser} from "@/lib/userApi.ts"; // userApi.ts의 sessionUser 함수 불러오기
 
 // 라우터
 const route = useRoute()
@@ -74,17 +75,18 @@ const getBoardDetail = async () => {
 // 로그인 사용자 정보 조회
 const loadSessionUser = async () => {
   try {
-    const res = await axios.get("/api/session", { withCredentials: true })
-    if (res.data.isLogin) {
-      user.value = res.data.user
-      console.log("현재 로그인 사용자:", user.value)
+    const res = await sessionUser();
+    if (res.isLogin) {
+      user.value = res.user;
+      console.log("세션 불러오기 성공", user.value)
     } else {
-      console.warn("로그인하지 않은 사용자 접근")
+      navigateTo("/");
     }
   } catch (err) {
-    console.error("세션 조회 실패:", err)
+    console.error("세션 조회 실패:", err);
   }
-}
+};
+
 
 // 수정 모드 활성화
 const enableEdit = () => {
@@ -151,6 +153,18 @@ onMounted(() => {
   if (boardId.value) getBoardDetail(boardId.value)
   else alert('잘못된 접근입니다.')
 })
+
+watch(
+  () => route.query.id,
+  (newId) => {
+    if (newId) {
+      getBoardDetail(newId)
+    } else {
+      alert("잘못된 접근입니다.")
+    }
+  },
+  { immediate: true } // 첫 마운트 시에도 바로 실행
+)
 
 // 본 페이지에 대한 서버 측 렌더링을 끈다.
 // 쿼리와 세션 기반 비동기 데이터 로딩이 ssr 시점에 처리되게 하기 위해 브라우저에서만 렌더링되도록 설정

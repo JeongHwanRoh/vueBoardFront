@@ -15,7 +15,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import login from "@/lib/userApi" // login API
+import {login} from "@/lib/userApi" // userApi.ts의 login 함수 불러오기
 
 // 반응형 상태변수
 const router = useRouter()
@@ -26,8 +26,8 @@ const errorMessage = ref('')
 const doLogin = async () => {
   debugger;
   try {
-    const response = await login(userId.value, password.value)
-    if (response.success) {
+    const res = await login(userId.value, password.value)
+    if (res.success) {
       alert('로그인 성공!')
       router.push('/board/main') // 게시판 페이지로 이동
     } else {

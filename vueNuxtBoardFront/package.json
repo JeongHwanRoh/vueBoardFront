@@ -20,6 +20,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.9.1",
+    "@types/sockjs-client": "^1.5.4",
+    "@types/stompjs": "^2.3.9",
     "eslint": "^9.38.0",
     "eslint-plugin-nuxt": "^4.0.0",
     "prettier": "^3.6.2",

@@ -4,7 +4,7 @@
 
     <!-- 검색창 (BoardSearch 컴포넌트로 분리해도 OK) -->
     <BoardSearch v-model:searchKeyword="searchKeyword" :filteredBoards="filteredBoards"
-      @select="$emit('select', $event)" />
+      @select="$emit('select', board.boardId)" />
 
     <!-- 신규 게시물 작성 모달 -->
      <!-- user 세션값이 들어올 경우에만 모달 열리게 처리 -->
@@ -34,9 +34,12 @@ const  isChatOpen=ref(false); //채팅창 오픈 여부
 
 // 대소문자 구분 없이 검색되게 처리
 const filteredBoards = computed(() => {
-  if (!searchKeyword.value.trim()) return [];
-  const lower = searchKeyword.value.toLowerCase();
-  return props.boards.filter((b) => b.title.includes(lower));
+  const keyword = searchKeyword.value.trim().toLowerCase();
+  if (!keyword) return [];
+
+  return props.boards.filter((b) =>
+    b.title?.toLowerCase().includes(keyword)
+  );
 });
 
 // 모달 내부에서 게시글 작성 완료 시 처리
