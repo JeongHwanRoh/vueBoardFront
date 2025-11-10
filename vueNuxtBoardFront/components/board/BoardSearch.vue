@@ -16,10 +16,11 @@
         <div v-if="filteredBoards.length" class="search-results"> 
             <ul>
                 <li v-for="board in filteredBoards" :key="board.boardId">
-                    <span class="result-title" @click="$emit('select', board.boardId)">
+                    <span class="result-title" @click="$emit('select', board)">
                         {{ board.title }}
                     </span>
                     <small> - {{ board.writerId }}</small>
+                    <a :href="`http://localhost:3000/board/detail?id=${board.boardId}`">{{board.boardId}}</a>
                 </li>
             </ul>
         </div>
@@ -39,6 +40,7 @@ const props = defineProps({
 
 })
 
+
 // 로컬 상태(입력용)
 const localKeyword=ref(props.searchKeyword || "")
 
@@ -50,6 +52,7 @@ watch(
   () => props.searchKeyword,
   (newVal) => {
     localKeyword.value = newVal;
+    console.log("props: ",props.filteredBoards)
   }
 );
 </script>

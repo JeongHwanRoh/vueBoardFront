@@ -6,29 +6,13 @@
     <!--  좌측 사이드바 + 메인 -->
     <div class="board-body">
       <!-- 좌측 사이드바 레이아웃 -->
-      <BoardSidebar
-        :boards="boards" 
-        :user="user"
-        @createBoard="doCreateBoard "
-        @select="goToDetail"
-        @openModal="showModal = true"
-        @openChat="isChatOpen = true"
-        @logout="doLogout"
-      />
+      <BoardSidebar :boards="boards" :user="user" @createBoard="doCreateBoard" @select="goToDetail"
+        @openModal="showModal = true" @openChat="isChatOpen = true" @logout="doLogout" />
 
       <!--  메인 게시판 레이아웃-->
-      <BoardMain
-        :boards="boards"
-        :user="user"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        :showModal="showModal"
-        @create="doCreateBoard"
-        @delete="doDeleteBoard"
-        @changePage="changePage"
-        @closeModal="showModal = false"
-        @detail="tryGoToDetail"
-      />
+      <BoardMain :boards="boards" :user="user" :currentPage="currentPage" :totalPages="totalPages"
+        :showModal="showModal" @create="doCreateBoard" @delete="doDeleteBoard" @changePage="changePage"
+        @closeModal="showModal = false" @detail="tryGoToDetail" />
     </div>
   </div>
 </template>
@@ -41,8 +25,8 @@ import { navigateTo } from "#app";
 import BoardHeader from "@/components/layout/BoardHeader.vue"; // 헤더 레이아웃 컴포넌트 
 import BoardSidebar from "@/components/layout/BoardSidebar.vue"; // 사이드바 레이아웃 컴포넌트
 import BoardMain from "@/components/layout/BoardMain.vue"; // 메인 게시판 레이아웃 컴포넌트
-import {logout, sessionUser} from "@/lib/userApi.ts"; // userApi.ts의 logout, sessionUser 함수 불러오기
-import {loadBoards, createBoard, deleteBoard} from "@/lib/boardApi.ts";
+import { logout, sessionUser } from "@/lib/userApi.ts"; // userApi.ts의 logout, sessionUser 함수 불러오기
+import { loadBoards, createBoard, deleteBoard } from "@/lib/boardApi.ts";
 
 //  상태 변수
 const user = ref(null);
@@ -58,7 +42,7 @@ const isChatOpen = ref(false);
 const doLoadBoards = async () => {
   //debugger;
   try {
-    const res=await loadBoards(currentPage.value, pageSize.value); // 요청보내는 값: currentPage, pageSize
+    const res = await loadBoards(currentPage.value, pageSize.value); // 요청보내는 값: currentPage, pageSize
     boards.value = res.boards; // 백엔드 리턴값 (해당 페이지 게시물 목록)
     totalCount.value = res.totalCount; // 백엔드 리턴값 (총 페이지 수)
     // console.log("boards: ",boards.value , "totalCount: ",totalCount.value);
@@ -83,6 +67,7 @@ const loadSessionUser = async () => {
 
 //  상세 페이지 이동
 const tryGoToDetail = (board) => {
+  debugger;
   if (!user.value) {
     alert("로그인이 필요합니다.");
     return;
@@ -90,9 +75,14 @@ const tryGoToDetail = (board) => {
   navigateTo({ path: "/board/detail", query: { id: board.boardId } });
 };
 
- const goToDetail = (boardId) => {
-  navigateTo({ path: "/board/detail", query: { id: boardId } });
-}; 
+// 검색 목록 제목 클릭시 상세 페이지 이동
+const goToDetail = (board) => {
+  if (!board || !board.boardId) {
+    console.warn("잘못된 board 객체:", board);
+    return;
+  }
+  navigateTo({ path: "/board/detail", query: { id: board.boardId } });
+};
 
 //  게시글 등록
 const doCreateBoard = async (newBoardData) => {
@@ -128,9 +118,9 @@ const changePage = (page) => {
 //  로그아웃
 const doLogout = async () => {
   try {
-    const res=await logout();
+    const res = await logout();
     alert("로그아웃 되었습니다.")
-    navigateTo("/"); 
+    navigateTo("/");
   } catch (err) {
     console.error("로그아웃 실패:", err);
   }

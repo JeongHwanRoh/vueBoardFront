@@ -4,7 +4,7 @@
 
     <!-- 검색창 (BoardSearch 컴포넌트로 분리해도 OK) -->
     <BoardSearch v-model:searchKeyword="searchKeyword" :filteredBoards="filteredBoards"
-      @select="$emit('select', board.boardId)" />
+      @select="$emit('select', boards.boardId)" />
 
     <!-- 신규 게시물 작성 모달 -->
      <!-- user 세션값이 들어올 경우에만 모달 열리게 처리 -->
