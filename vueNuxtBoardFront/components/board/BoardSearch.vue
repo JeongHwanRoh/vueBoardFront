@@ -12,7 +12,7 @@
         <div v-if="filteredBoards.length" class="search-results">
             <ul>
                 <li v-for="board in filteredBoards" :key="board.boardId">
-                    <span class="result-title" @click="$emit('select', board)">
+                    <span class="result-title">
                         <a :href="`http://localhost:3000/board/detail?id=${board.boardId}`">{{ board.title }}</a>
                     </span>
                     <small> - {{ board.writerId }}</small>

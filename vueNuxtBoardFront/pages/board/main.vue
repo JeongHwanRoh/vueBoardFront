@@ -1,3 +1,4 @@
+<!-- template 부분> default.vue로 빼기(유지보수 차원에서)-->
 <template>
   <div class="board-layout">
     <!-- 상단 헤더 레이아웃 -->
@@ -22,9 +23,9 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { navigateTo } from "#app";
 
-import BoardHeader from "@/components/layout/BoardHeader.vue"; // 헤더 레이아웃 컴포넌트 
-import BoardSidebar from "@/components/layout/BoardSidebar.vue"; // 사이드바 레이아웃 컴포넌트
-import BoardMain from "@/components/layout/BoardMain.vue"; // 메인 게시판 레이아웃 컴포넌트
+import BoardHeader from "~/components/layout/header.vue"; // 헤더 레이아웃 컴포넌트 
+import BoardSidebar from "~/components/layout/sidebar.vue"; // 사이드바 레이아웃 컴포넌트
+import BoardMain from "~/components/layout/main.vue"; // 메인(게시판) 레이아웃 컴포넌트
 import { logout, sessionUser } from "@/lib/userApi.ts"; // userApi.ts의 logout, sessionUser 함수 불러오기
 import { loadBoards, createBoard, deleteBoard } from "@/lib/boardApi.ts";
 
@@ -38,7 +39,7 @@ const totalPages = computed(() => Math.ceil(totalCount.value / pageSize));
 const showModal = ref(false);
 const isChatOpen = ref(false);
 
-//  게시글 목록 조회
+//  게시글 목록 조회 
 const doLoadBoards = async () => {
   //debugger;
   try {
@@ -63,25 +64,6 @@ const loadSessionUser = async () => {
   } catch (err) {
     console.error("세션 조회 실패:", err);
   }
-};
-
-//  상세 페이지 이동
-const tryGoToDetail = (board) => {
-  debugger;
-  if (!user.value) {
-    alert("로그인이 필요합니다.");
-    return;
-  }
-  navigateTo({ path: "/board/detail", query: { id: board.boardId } });
-};
-
-// 검색 목록 제목 클릭시 상세 페이지 이동
-const goToDetail = (board) => {
-  if (!board || !board.boardId) {
-    console.warn("잘못된 board 객체:", board);
-    return;
-  }
-  navigateTo({ path: "/board/detail", query: { id: board.boardId } });
 };
 
 //  게시글 등록
@@ -126,7 +108,7 @@ const doLogout = async () => {
   }
 };
 
-//  초기 실행
+//  초기 실행 => layouts/default.vue로 빼기 (script)
 onMounted(() => {
   loadSessionUser();
   doLoadBoards();

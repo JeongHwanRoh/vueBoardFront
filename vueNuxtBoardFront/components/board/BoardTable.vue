@@ -16,15 +16,12 @@
         <td>{{ board.boardId }}</td>
 
         <!-- 제목 클릭 시 상세 이동 이벤트 emit -->
-         <!-- 해당 제목에 맞는 board를 boardTable->BoardMain -> list.vue로 올림
+        <!-- 해당 제목에 맞는 board를 boardTable->BoardMain -> list.vue로 올림
               list.vue에
          -->
         <td>
-          <span
-            class="link-title"
-            @click="$emit('detail', board)" 
-          >
-            {{ board.title }}
+          <span class="result-title">
+            <a :href="`http://localhost:3000/board/detail?id=${board.boardId}`">{{ board.title }}</a>
           </span>
         </td>
 
@@ -34,10 +31,7 @@
         <td>{{ board.category }}</td>
 
         <td>
-          <button
-            class="deleteBoard"
-            @click="$emit('delete', board.boardId)"
-          >
+          <button class="deleteBoard" @click="$emit('delete', board.boardId)">
             삭제
           </button>
         </td>
@@ -47,7 +41,7 @@
 </template>
 
 <script setup>
-import {defineProps, defineEmits} from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
 //  props: 상위에서 게시글 목록 받아오기
 const props = defineProps({
@@ -58,7 +52,7 @@ const props = defineProps({
 });
 
 //  emit: detail, delete 이벤트 부모로 전달
-const emit=defineEmits(["detail", "delete"]);
+const emit = defineEmits(["detail", "delete"]);
 
 //  날짜 포맷 함수 (단순 변환)
 const formatDate = (date) => new Date(date).toLocaleDateString();
